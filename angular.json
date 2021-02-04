@@ -122,5 +122,10 @@
       }
     }
   },
+  "schematics": {
+    "@schematics/angular:component": {
+      "styleext": "scss"
+    }
+  },
   "defaultProject": "wolftracker"
 }

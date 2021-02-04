@@ -1,4 +1,73 @@
-<p>dashboard works!</p>
-<ul>
-  <li *ngFor="let wolf of wolves; let i = index">{{wolf.name}}</li>
-</ul>
+<div class="dashboard-container">
+  <div class="latest-wolves">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Last updated wolves</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <div class="loadingIndicator" *ngIf="wolvesLoading">
+          <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+        </div>
+
+        <table name="latestWolvesTable" [(ngModel)]="latestWolvesTable" ngDefaultControl mat-table *ngIf="this.wolves === null || this.wolves.length > 0"
+               [dataSource]="wolves">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let wolf">{{wolf.name}}</td>
+          </ng-container>
+          <ng-container matColumnDef="updated_at">
+            <th mat-header-cell *matHeaderCellDef>Last Update</th>
+            <td mat-cell *matCellDef="let wolf">{{wolf.updated_at}}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="WolvesTableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: WolvesTableColumns"></tr>
+        </table>
+
+        <div class="no-wolves" *ngIf="!wolvesLoading &&( wolves === null || wolves.length === 0)">
+          <h3>No wolves registered yet, please add some more.</h3>
+        </div>
+        <mat-card-actions align="end">
+          <a class="btn show-all" mat-raised-button color="primary" routerLink="/wolves" routerLinkActive="active">Show All</a>
+        </mat-card-actions>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="latest-packs">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Last updated Packs</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <div class="loadingIndicator" *ngIf="packsLoading">
+          <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+        </div>
+
+        <table name="latestPacksTable" [(ngModel)]="latestPacksTable" ngDefaultControl mat-table *ngIf="this.packs === null || this.packs.length > 0"
+               [dataSource]="packs">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let pack">{{pack.name}}</td>
+          </ng-container>
+          <ng-container matColumnDef="updated_at">
+            <th mat-header-cell *matHeaderCellDef>Last Update</th>
+            <td mat-cell *matCellDef="let pack">{{pack.updated_at}}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="PacksTableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: PacksTableColumns"></tr>
+        </table>
+
+        <div class="no-packs" *ngIf="!packsLoading && (this.packs === null || this.packs.length === 0)">
+          <h3>No wolves registered yet, please add some more.</h3>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <a mat-raised-button color="primary" routerLink="packs">Show All</a>
+
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+</div>

@@ -1,3 +1,24 @@
+<header>
+  <mat-toolbar color="primary" class="navigation-container">
+    <div class="logo">
+      <a [routerLink]="['/']">
+        Wolftrackly
+      </a>
+    </div>
+    <mat-nav-list class="navigation">
+      <!--https://material.angular.io/components/list/overview-->
+      <mat-list-item class="navigation-item" [ngClass]="{'active': this.router.url === '/'}">
+        <a [routerLink]="['/']">Dashboard</a>
+      </mat-list-item>
+      <mat-list-item class="navigation-item" [ngClass]="{'active': this.router.url === '/wolves'}">
+        <a [routerLink]="['/wolves']">Wolves</a>
+      </mat-list-item>
+      <mat-list-item class="navigation-item" [ngClass]="{'active': this.router.url === '/packs'}">
+        <a [routerLink]="['/packs']">Packs</a>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-toolbar>
+</header>
 <div class="page">
   <router-outlet></router-outlet>
 </div>

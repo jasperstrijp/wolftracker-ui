@@ -1,0 +1,31 @@
+.dashboard-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.latest-wolves, .latest-packs {
+  width: 80%;
+  margin: 40px auto 0;
+
+  .mat-progress-spinner{
+    margin: 40px auto 0;
+  }
+
+  .no-wolves h3{
+    font-style: italic;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  td {
+    width: available;
+  }
+
+  mat-card-actions {
+    margin-top: 30px;
+    align-self: flex-end;
+  }
+}

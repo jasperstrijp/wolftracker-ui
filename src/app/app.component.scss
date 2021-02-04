@@ -1,0 +1,41 @@
+@import "~src/variables";
+
+header {
+  height: $headerHeight;
+
+  .navigation-container {
+    display: flex;
+    justify-content: space-between;
+    height: $headerHeight;
+    padding: 0 $borderSpacing;
+
+    .logo {
+      a {
+        text-decoration: none;
+        color: $white;
+      }
+    }
+
+    .navigation {
+      display: flex;
+      padding: 0;
+      height: $headerHeight;
+
+      .navigation-item.active {
+        text-decoration: underline;
+      }
+
+      .navigation-item {
+        display: inline-block;
+        height: $headerHeight;
+
+        a {
+          padding: 0 16px;
+          line-height: $headerHeight;
+          height: $headerHeight;
+          color: $white;
+        }
+      }
+    }
+  }
+}

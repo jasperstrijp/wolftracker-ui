@@ -5,6 +5,6 @@ export class Wolf{
   public name: string;
   public gender: Gender;
   public birthday: Date;
-  public createDate: Date;
-  public updateDate: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
 }
