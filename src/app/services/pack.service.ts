@@ -5,6 +5,7 @@ import {Wolf} from '../models/wolf';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {Injectable} from '@angular/core';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class PackService implements IpackService{
@@ -34,7 +35,23 @@ export class PackService implements IpackService{
 
   getPacks(): Observable<Pack[]> {
     const requestUrl = this.apiUrl + '/packs';
-    return this.http.get<Pack[]>(requestUrl);
+    return this.http.get(requestUrl).pipe(
+      map((response: Response) => {
+        const packsArray: Pack[] = [];
+
+        for (const key of Object.keys(response)){
+          packsArray.push({
+            id: response[key].id,
+            name: response[key].name,
+            latitude: response[key].lat,
+            longitude: response[key].lng,
+            createdAt: response[key].created_at,
+            updatedAt: response[key].updated_at
+          });
+        }
+
+        return packsArray;
+      }));
   }
 
   removeWolfFromPack(packId: number, wolfIf: number): Observable<object> {

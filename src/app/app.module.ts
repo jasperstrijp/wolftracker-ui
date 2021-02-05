@@ -10,14 +10,16 @@ import { AuthInterceptor} from './interceptors/auth.interceptor';
 import { WolvesComponent } from './wolves/wolves.component';
 import { PacksComponent } from './packs/packs.component';
 import {MaterialModule} from './material.module';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {DateFormatPipe} from './pipe/date.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     WolvesComponent,
-    PacksComponent
+    PacksComponent,
+    DateFormatPipe
   ],
   imports: [
     BrowserModule,
@@ -26,7 +28,8 @@ import {FormsModule} from '@angular/forms';
     AppRoutingModule,
     HttpClientModule,
     MaterialModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],

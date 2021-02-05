@@ -3,9 +3,9 @@ import {WolfService} from '../services/wolf.service';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Wolf} from '../models/wolf';
-import {MatTable} from '@angular/material/table';
 import {PackService} from '../services/pack.service';
 import {Pack} from '../models/pack';
+import {Gender} from '../models/gender.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,11 +20,8 @@ export class DashboardComponent implements OnInit {
   wolves: Wolf[] = [];
   packs: Pack[] = [];
 
-  WolvesTableColumns = ['name', 'updated_at'];
-  PacksTableColumns = ['name', 'updated_at'];
-
-  @ViewChild('latestWolvesTable') latestWolvesTable: MatTable<Wolf>;
-  @ViewChild('latestPacksTable') latestPacksTable: MatTable<Pack>;
+  WolvesTableColumns = ['name', 'updatedAt'];
+  PacksTableColumns = ['name', 'updatedAt'];
 
   private wolfService: WolfService;
   private packService: PackService;

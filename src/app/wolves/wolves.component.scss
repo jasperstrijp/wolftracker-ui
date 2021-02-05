@@ -1,0 +1,58 @@
+.wolves-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+
+  .selected-wolf{
+    position: relative;
+
+    .close-button{
+      position: absolute;
+      right: 3px;
+      top: 3px
+    }
+
+    .button-save, .button-delete{
+      width: 150px;
+      height: 50px;
+      font-size: 18px;
+    }
+  }
+
+  .all-wolves, .selected-wolf {
+    width: 90%;
+    margin: 40px auto 0;
+
+    .mat-progress-spinner {
+      margin: 40px auto 0;
+    }
+
+    table {
+      width: 100%;
+
+      td {
+        width: available;
+      }
+
+      td.gender-cell {
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  .selected-wolf{
+    form{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      mat-form-field{
+        width: 100%;
+      }
+
+      input, mat-select{
+        font-size: 18px;
+      }
+    }
+  }
+}
