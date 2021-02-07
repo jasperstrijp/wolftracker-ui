@@ -34,6 +34,7 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Load Data
     this.getLastUpdatedWolves(5);
     this.getLastUpdatedPacks(5);
   }
@@ -59,6 +60,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Sort the arrays on update Date and short to specified nr of items.
   sortArrayAndSliceArray(array: any[], nrOfItems: number): any[]{
     let sortedArray = array.sort((a, b) => {
       return b.updatedAt > a.updatedAt ? 1 : -1;

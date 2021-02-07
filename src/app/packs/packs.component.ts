@@ -37,21 +37,29 @@ export class PacksComponent implements OnInit {
   private dialog: MatDialog;
   private route: ActivatedRoute;
 
-  constructor(packService: PackService, validatorService: ValidatorService, snackbar: MatSnackBar, dialog: MatDialog, route: ActivatedRoute) {
+  constructor(
+    packService: PackService,
+    validatorService: ValidatorService,
+    snackbar: MatSnackBar,
+    dialog: MatDialog,
+    route: ActivatedRoute) {
     this.route = route;
     this.dialog = dialog;
     this.snackbar = snackbar;
     this.packService = packService;
     this.validatorService = validatorService;
 
-    // Create FormGroup definitions for the update form
+    // Create FormGroup definition for the form
     this.packForm = new FormGroup({
       name: new FormControl('', [Validators.required, validatorService.noWhitespaceValidator, validatorService.onlyLettersValidator])
     });
   }
 
   ngOnInit(): void {
+    // Load all packs at the start
     this.getAllPacks();
+
+    // Get the id parameter from the url, if present preload the pack
     this.route.params.subscribe(params => {
       if (params.id === undefined){
         return;
@@ -60,18 +68,12 @@ export class PacksComponent implements OnInit {
       const selectedPackId = Number(params.id);
       this.selectPack(selectedPackId);
     });
-
-    navigator.geolocation.getCurrentPosition((position) => {
-      this.currentLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      };
-    });
   }
 
   // Data Methods
   getAllPacks(): void{
     this.packService.getPacks().subscribe((packs: Pack[]) => {
+      // Sort the packs alphabetically
       this.packs = packs.sort((a, b) => {
         if (a.name < b.name) { return -1; }
         if (a.name > b.name) { return 1; }
@@ -80,7 +82,7 @@ export class PacksComponent implements OnInit {
 
       this.packsLoading = false;
     }, (error: HttpErrorResponse) => {
-      // Create Failed
+      // Failed
       this.snackbar.open(error.error, 'close', {
         duration: 1500
       });
@@ -93,14 +95,17 @@ export class PacksComponent implements OnInit {
       return;
     }
 
+    // Get the pack from the array of loaded packs and set values to from values.
     const packToUpdate = this.getPackFromArray(id);
     packToUpdate.name = this.packForm.controls.name.value;
     packToUpdate.latitude = this.selectedPack.latitude;
     packToUpdate.longitude = this.selectedPack.longitude;
 
+    // Execute the update request
     this.packService.updatePack(packToUpdate).subscribe(() => {
       this.snackbar.open('Successfully updated', 'close', {duration: 1500});
 
+      // Update local data
       this.getAllPacks();
       this.updateSelectedWolf();
     }, (error: HttpErrorResponse) => {
@@ -112,23 +117,27 @@ export class PacksComponent implements OnInit {
   }
 
   deletePack(id: number): void{
+    // Open confirm dialog
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {text: `Are you sure you want to permanently remove the pack "${this.selectedPack.name}"?`}
     });
 
+    // If the result closed with 'Yes'
     confirmDialog.afterClosed().subscribe(result => {
       if (!result){
         return;
       }
 
+      // Execute delete request
       this.packService.deletePack(id).subscribe(() => {
         this.snackbar.open('Successfully deleted', 'close', {duration: 1500});
 
+        // Update local data and deselect pack.
         this.getAllPacks();
         this.selectedPack = null;
       }, (error: HttpErrorResponse) => {
-        // Create Failed
+        // Delete Failed
         this.snackbar.open(error.error, 'close', {
           duration: 1500
         });
@@ -137,12 +146,13 @@ export class PacksComponent implements OnInit {
   }
 
   createPack(): void {
+    // All fields valid?
     if (this.packForm.invalid){
       this.snackbar.open('Not all fields have been filled in correctly', 'close', {duration: 1500});
       return;
     }
 
-    // Fill data from FormGroup
+    // Fill data from FormGroup and current location data, saved to the current Pack.
     const pack: Pack = {
       id: 0,
       name: this.packForm.controls.name.value,
@@ -153,9 +163,11 @@ export class PacksComponent implements OnInit {
       wolves: null
     };
 
+    // Execute create statement
     this.packService.createPack(pack).subscribe((newId: number) => {
       this.snackbar.open('Successfully created pack', 'close', {duration: 1500});
 
+      // Reload packs and select the newly added packs for further editing.
       this.getAllPacks();
       this.selectPack(newId);
       this.createPackFlag = false;
@@ -168,9 +180,11 @@ export class PacksComponent implements OnInit {
   }
 
   removeWolfFromPack(packId: number, wolfId: number): void {
+    // Set name fields for confirm string
     const wolfName = this.selectedPack.wolves.find(wolf => wolf.id === wolfId).name;
     const packName = this.selectedPack.name;
 
+    // Open confirmation dialog and check if closed with 'yes'
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {text: `Are you sure you want to remove the wolf "${wolfName}" from the pack "${packName}"?`}
@@ -181,32 +195,50 @@ export class PacksComponent implements OnInit {
         return;
       }
 
+      // Execute remove wolf from pack request
       this.packService.removeWolfFromPack(packId, wolfId).subscribe(() => {
         this.snackbar.open('Successfully removed Wolf from the Pack', 'close', {duration: 1500});
         this.updateSelectedWolf();
+      }, (error: HttpErrorResponse) => {
+        // Request Failed
+        this.snackbar.open(error.error, 'close', {
+          duration: 1500
+        });
       });
     });
   }
 
-  openAddWolfToPack(): void {
+  addWolfToPack(): void {
+    // Open the select wolf dialog
     const dialogRef = this.dialog.open(SelectWolfDialogComponent, {
       data: {wolvesInPack: this.selectedPack.wolves},
       width: '1000px'
     });
 
     dialogRef.afterClosed().subscribe(wolvesToAdd => {
+      // Where any wolfs chosen in the dialog
       if (wolvesToAdd === null || wolvesToAdd.length === 0) {
         return;
       }
 
       let counter = 0;
+      // If multiple wolfs where chosen in the dialog, the requests has to be called once for each wolf to be added.
+      // No request exists allowing for multiple wolfs to be added at once, this way the user will still experience the existence of such
+      // a request.
       for (const wolf of wolvesToAdd) {
         this.packService.addWolfToPack(this.selectedPack.id, wolf.id).subscribe(() => {
           counter++;
+
+          // If all wolves have been added, show a Snackbar and update the current selected pack to see the new changes.
           if (counter === wolvesToAdd.length){
             this.snackbar.open(`Successfully added ${wolvesToAdd.length > 1 ? 'wolves' : 'wolf'} to pack!`, 'close', {duration: 1500});
             this.updateSelectedWolf();
           }
+        }, (error: HttpErrorResponse) => {
+          // Request Failed
+          this.snackbar.open(error.error, 'close', {
+            duration: 1500
+          });
         });
       }
     });
@@ -220,6 +252,7 @@ export class PacksComponent implements OnInit {
   }
 
   btnSaveClick(): void {
+    // The save button has multiple actions depending on the createPackFlag
     if (this.createPackFlag){
       this.createPack();
     }else{
@@ -229,15 +262,31 @@ export class PacksComponent implements OnInit {
 
   // Helper Methods
   selectPack(id: number): void {
+    // Get the selected pack from the API, otherwise we cannot show the wolves in the pack.
     this.createPackFlag = false;
     this.packService.getPackById(id).subscribe((pack: Pack) => {
+      // Update the local data
       this.selectedPack = pack;
+      // Set the values of the selected pack in the form fields
       this.updatePackForm();
+    }, (error: HttpErrorResponse) => {
+      // Request Failed
+      this.snackbar.open(error.error, 'close', {
+        duration: 1500
+      });
     });
   }
 
+  // Reload the selected wolf from the API
+  updateSelectedWolf(): void {
+    this.selectPack(this.selectedPack.id);
+  }
+
   openCreatePackForm(): void {
-    this.selectedPack = new Pack(0, '', this.currentLocation.lat, this.currentLocation.lng, null, null, []);
+    const location = this.getCurrentLocation();
+    this.selectedPack = new Pack(0, '', location.lat, location.lng, null, null, []);
+
+    // Reset the form values to update the fields
     this.updatePackForm();
     this.createPackFlag = true;
   }
@@ -246,6 +295,7 @@ export class PacksComponent implements OnInit {
     this.selectedPack = null;
   }
 
+  // Get a pack by Id from the array of loaded packs. Prevents unneeded connections.
   getPackFromArray(id: number): Pack{
     if (this.packs === null || this.packs.length === 0){
       return null;
@@ -254,20 +304,21 @@ export class PacksComponent implements OnInit {
     return this.packs.find((wolf => wolf.id === id));
   }
 
-  updateSelectedWolf(): void {
-    this.packService.getPackById(this.selectedPack.id).subscribe((pack: Pack) => {
-      console.log(pack);
-      this.selectedPack = pack;
-      this.updatePackForm();
-    }, (error: HttpErrorResponse) => {
-      // Update Failed
-      this.snackbar.open(error.error, 'close', {
-        duration: 1500
-      });
-    });
-  }
-
+  // Update form fields with the data of the selected Pack
   updatePackForm(): void {
     this.packForm.controls.name.setValue(this.selectedPack.name);
+  }
+
+  getCurrentLocation(): {lat: number, lng: number}{
+    // Get the current location
+    let location: {lat: number, lng: number} = {lat: 0, lng: 0};
+    navigator.geolocation.getCurrentPosition((position) => {
+      location = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+    });
+
+    return location;
   }
 }

@@ -19,7 +19,6 @@ import {MatDialog} from '@angular/material/dialog';
 })
 export class WolvesComponent implements OnInit {
   wolvesLoading = true;
-  updatingWolf = true;
   createWolfFlag = false;
 
   genderValues = [];
@@ -32,16 +31,19 @@ export class WolvesComponent implements OnInit {
   updateWolfForm: FormGroup;
   createWolfForm: FormGroup;
 
-
   private wolfService: WolfService;
   private validatorService: ValidatorService;
   private snackbar: MatSnackBar;
-
   private route: ActivatedRoute;
 
   public dialog: MatDialog;
 
-  constructor(wolfService: WolfService, validatorService: ValidatorService, snackbar: MatSnackBar, route: ActivatedRoute, dialog: MatDialog) {
+  constructor(
+    wolfService: WolfService,
+    validatorService: ValidatorService,
+    snackbar: MatSnackBar,
+    route: ActivatedRoute,
+    dialog: MatDialog) {
     this.dialog = dialog;
     this.route = route;
     this.snackbar = snackbar;
@@ -66,24 +68,14 @@ export class WolvesComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAllWolves();
-    this.route.params.subscribe(params => {
-      if (params.id === undefined){
-        return;
-      }
 
-      const selectedWolfId = Number(params.id);
-      this.wolfService.getWolfById(selectedWolfId).subscribe((wolf: Wolf) => {
-        this.selectedWolf = wolf;
-        this.updateWolfUpdateForm();
-      }, (error: HttpErrorResponse) => {
-        this.snackbar.open(error.error, 'close', {
-          duration: 1500
-        });
-      });
-    });
+    // If Id is present in URL, preselect that wolf
+    this.preselectWolf();
   }
 
+  // REQUEST METHODS
   getAllWolves(): void {
+    // Get all wolves and sort alphabetically
     this.wolfService.getWolves().subscribe((wolves: Wolf[]) => {
       this.wolves = wolves.sort((a, b) => {
         if (a.name < b.name) { return -1; }
@@ -96,11 +88,13 @@ export class WolvesComponent implements OnInit {
   }
 
   createWolf(): void {
+    // If all fields are valid
     if (this.createWolfForm.invalid){
       this.snackbar.open('Not all fields have been filled in correctly', 'close', {duration: 1500});
       return;
     }
 
+    // Create a new wolf and load values from form
     const wolf: Wolf = {
       id: 0,
       name: this.createWolfForm.controls.name.value,
@@ -110,9 +104,11 @@ export class WolvesComponent implements OnInit {
       updatedAt: null
     };
 
+    // Execute request
     this.wolfService.createWolf(wolf).subscribe(() => {
       this.snackbar.open('Successfully created wolf', 'close', {duration: 1500});
 
+      // Update local data and close create window.
       this.getAllWolves();
       this.createWolfFlag = false;
     }, (error: HttpErrorResponse) => {
@@ -124,8 +120,7 @@ export class WolvesComponent implements OnInit {
   }
 
   updateWolf(id: number): void{
-    this.updatingWolf = true;
-
+    // If all fields are valid
     if (this.updateWolfForm.invalid){
       this.snackbar.open('Not all fields have been filled in correctly', 'close', {duration: 1500});
       return;
@@ -145,8 +140,6 @@ export class WolvesComponent implements OnInit {
       // Reload data on the page
       this.getAllWolves();
       this.updateSelectedWolf();
-
-      this.updatingWolf = false;
     }, (error: HttpErrorResponse) => {
       // Update Failed
       this.snackbar.open(error.error, 'close', {
@@ -156,12 +149,13 @@ export class WolvesComponent implements OnInit {
   }
 
   deleteWolf(id: number): void {
+    // Open confirmation dialog.
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {text: `Are you sure you want to permanently delete "${this.selectedWolf.name}"?`}
     });
 
-    // Check if the user pressed, yes
+    // Check if the user pressed 'yes'
     confirmDialog.afterClosed().subscribe(result => {
       if (!result){
         // If not, don't delete
@@ -175,13 +169,21 @@ export class WolvesComponent implements OnInit {
         // Update the data and reset variables.
         this.getAllWolves();
         this.selectedWolf = null;
+      }, (error: HttpErrorResponse) => {
+        // Delete Failed
+        this.snackbar.open(error.error, 'close', {
+          duration: 1500
+        });
       });
     });
   }
 
   updateSelectedWolf(): void {
+    // Request the wolf by id and set as selected wolf
     this.wolfService.getWolfById(this.selectedWolf.id).subscribe(wolf => {
       this.selectedWolf = wolf;
+
+      // Update the form fields
       this.updateWolfUpdateForm();
     }, (error: HttpErrorResponse) => {
       // Update Failed
@@ -191,12 +193,39 @@ export class WolvesComponent implements OnInit {
     });
   }
 
+  // END REQUEST METHODS
+
+  // HELPER METHODS
+  preselectWolf(): void {
+    // Get the wolf Id from the URL parameter
+    this.route.params.subscribe(params => {
+      if (params.id === undefined){
+        return;
+      }
+
+      const selectedWolfId = Number(params.id);
+
+      // Request the data
+      this.wolfService.getWolfById(selectedWolfId).subscribe((wolf: Wolf) => {
+        // Save data locally and update form fields
+        this.selectedWolf = wolf;
+        this.updateWolfUpdateForm();
+      }, (error: HttpErrorResponse) => {
+        this.snackbar.open(error.error, 'close', {
+          duration: 1500
+        });
+      });
+    });
+  }
+
+  // Set the form fields to the currently selected wolf values
   updateWolfUpdateForm(): void {
     this.updateWolfForm.controls.name.setValue(this.selectedWolf.name);
     this.updateWolfForm.controls.gender.setValue(this.selectedWolf.gender);
     this.updateWolfForm.controls.birthday.setValue(this.selectedWolf.birthday);
   }
 
+  // Select a wolf by id
   selectWolf(id: number): void {
     this.createWolfFlag = false;
     this.selectedWolf = this.getWolfFromArray(id);
@@ -214,10 +243,6 @@ export class WolvesComponent implements OnInit {
     }
 
     return this.wolves.find((wolf => wolf.id === id));
-  }
-
-  capitalizeFirstLetter(text: string): string {
-    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
   closeSelectedWolf(): void {

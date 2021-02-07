@@ -48,6 +48,7 @@ export class PackService implements IpackService {
       map((response: any) => {
         const wolves: Wolf[] = [];
 
+        // Map the wolves data to an array of wolves objects
         for (const key of Object.keys(response.wolves)){
           wolves.push({
             id: response.wolves[key].id,
@@ -59,6 +60,7 @@ export class PackService implements IpackService {
           });
         }
 
+        // Match the pack's data to the pack object
         return {
           id: response.id,
           name: response.name,
@@ -77,6 +79,7 @@ export class PackService implements IpackService {
       map((response: Response) => {
         const packsArray: Pack[] = [];
 
+        // Map the packs data to the an array of Pack objects
         for (const key of Object.keys(response)) {
           packsArray.push({
             id: response[key].id,

@@ -10,7 +10,7 @@ import {Router} from '@angular/router';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'wolftracker';
+  title = 'Wolftrackly';
 
   constructor(public router: Router) {
   }
