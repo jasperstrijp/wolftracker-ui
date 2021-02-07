@@ -1,6 +1,6 @@
 # Wolftrackly
 This project is the frontend assessment project for Wolfpack IT located in Eindhoven. I used [Angular CLI](https://github.com/angular/angular-cli) version 11.1.2 with Angular Material Design as design basis.
-All code has been written by myself. For run instructions see below.
+All code has been written by me, including the designs located in the designs directory. For run instructions see below.
 
 ## Development server
 
