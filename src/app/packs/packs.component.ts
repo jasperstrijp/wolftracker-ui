@@ -283,12 +283,13 @@ export class PacksComponent implements OnInit {
   }
 
   openCreatePackForm(): void {
-    const location = this.getCurrentLocation();
-    this.selectedPack = new Pack(0, '', location.lat, location.lng, null, null, []);
-
-    // Reset the form values to update the fields
-    this.updatePackForm();
     this.createPackFlag = true;
+    navigator.geolocation.getCurrentPosition((position) => {
+      this.selectedPack = new Pack(0, '', position.coords.latitude, position.coords.longitude, null, null, []);
+
+      // Reset the form values to update the fields
+      this.updatePackForm();
+    });
   }
 
   closeSelectedPack(): void {
@@ -307,18 +308,5 @@ export class PacksComponent implements OnInit {
   // Update form fields with the data of the selected Pack
   updatePackForm(): void {
     this.packForm.controls.name.setValue(this.selectedPack.name);
-  }
-
-  getCurrentLocation(): {lat: number, lng: number}{
-    // Get the current location
-    let location: {lat: number, lng: number} = {lat: 0, lng: 0};
-    navigator.geolocation.getCurrentPosition((position) => {
-      location = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      };
-    });
-
-    return location;
   }
 }
