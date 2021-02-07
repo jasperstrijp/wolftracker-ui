@@ -3,7 +3,7 @@ import {Pack} from '../../models/pack';
 
 export interface IpackService {
   getPacks(): Observable<Pack[]>;
-  createPack(pack: Pack): Observable<object>;
+  createPack(pack: Pack): Observable<number>;
   getPackById(id: number): Observable<Pack>;
   updatePack(pack: Pack): Observable<object>;
   deletePack(id: number): Observable<object>;

@@ -20,8 +20,8 @@ export class DashboardComponent implements OnInit {
   wolves: Wolf[] = [];
   packs: Pack[] = [];
 
-  WolvesTableColumns = ['name', 'updatedAt'];
-  PacksTableColumns = ['name', 'updatedAt'];
+  WolvesTableColumns = ['name', 'updatedAt', 'actions'];
+  PacksTableColumns = ['name', 'updatedAt', 'actions'];
 
   private wolfService: WolfService;
   private packService: PackService;
@@ -38,17 +38,9 @@ export class DashboardComponent implements OnInit {
     this.getLastUpdatedPacks(5);
   }
 
-  getLastUpdatedWolves(count: number): void {
+  getLastUpdatedWolves(maxNrOfItems: number): void {
     this.wolfService.getWolves().subscribe((wolves: Wolf[]) => {
-      const sortedArray = wolves.sort((a, b) => {
-        return b.updatedAt > a.updatedAt ? 1 : -1;
-      });
-
-      if (sortedArray.length >= count) {
-        this.wolves = sortedArray.slice(0, count);
-      } else {
-        this.wolves = sortedArray;
-      }
+      this.wolves = this.sortArrayAndSliceArray(wolves, maxNrOfItems);
 
       this.wolvesLoading = false;
     }, (error: HttpErrorResponse) => {
@@ -57,29 +49,25 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getLastUpdatedPacks(count: number): void {
+  getLastUpdatedPacks(maxNrOfItems: number): void {
     this.packService.getPacks().subscribe((packs: Pack[]) => {
-      const sortedArray = packs.sort((a, b) => {
-        return b.updatedAt > a.updatedAt ? 1 : -1;
-      });
 
-      if (sortedArray.length >= count) {
-        this.packs = sortedArray.slice(0, count);
-      } else {
-        this.packs = sortedArray;
-      }
-
+      this.packs = this.sortArrayAndSliceArray(packs, maxNrOfItems);
       this.packsLoading = false;
     }, (error: HttpErrorResponse) => {
       this.snackbar.open(error.error, 'close', {duration: 3000});
     });
   }
 
-  wait(ms: number): void{
-    const start = new Date().getTime();
-    let end = start;
-    while (end < start + ms) {
-      end = new Date().getTime();
+  sortArrayAndSliceArray(array: any[], nrOfItems: number): any[]{
+    let sortedArray = array.sort((a, b) => {
+      return b.updatedAt > a.updatedAt ? 1 : -1;
+    });
+
+    if (sortedArray.length >= nrOfItems) {
+      sortedArray = sortedArray.slice(0, nrOfItems);
     }
+
+    return sortedArray;
   }
 }

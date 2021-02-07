@@ -1,0 +1,9 @@
+<div class="confirm-dialog">
+  <h1>Are you sure?</h1>
+  <p>{{this.data.text}}</p>
+
+  <div class="buttons" align="middle">
+    <button (click)="closeDialog(false)" class="btn-no" mat-raised-button color="primary"><mat-icon class="mat-24">cancel</mat-icon> No</button>
+    <button (click)="closeDialog(true)" class="btn-yes" mat-raised-button color="warn"><mat-icon class="mat-24">done</mat-icon> Yes</button>
+  </div>
+</div>

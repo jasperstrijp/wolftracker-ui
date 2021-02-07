@@ -9,7 +9,9 @@ const routes: Routes = [
   {path: '', component: DashboardComponent},
   {path: 'dashboard', component: DashboardComponent},
   {path: 'wolves', component: WolvesComponent},
+  {path: 'wolves/:id', component: WolvesComponent},
   {path: 'packs', component: PacksComponent},
+  {path: 'packs/:id', component: PacksComponent},
 ];
 
 @NgModule({

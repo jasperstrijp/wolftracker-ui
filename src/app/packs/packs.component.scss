@@ -1,9 +1,9 @@
-.wolves-container {
+.packs-container{
   width: 100%;
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 2fr 3fr;
 
-  .selected-wolf{
+  .selected-pack{
     position: relative;
 
     .close-button{
@@ -19,7 +19,7 @@
     }
   }
 
-  .all-wolves, .selected-wolf {
+  .all-packs, .selected-pack {
     width: 90%;
     margin: 40px auto 0;
 
@@ -38,14 +38,10 @@
         font-style: italic;
         background-color: #FFE6CC;
       }
-
-      td.gender-cell {
-        text-transform: capitalize;
-      }
     }
   }
 
-  .selected-wolf{
+  .selected-pack{
     form{
       display: flex;
       flex-direction: column;
@@ -58,6 +54,30 @@
       input, mat-select{
         font-size: 18px;
       }
+
+      .wolves-table{
+        width: 100%;
+        border: 1px solid #0000001f;
+        border-radius: 4px;
+        margin: 30px 0;
+
+        td button:first-of-type{
+          margin-right: 10px;
+        }
+
+        td.gender-cell {
+          text-transform: capitalize;
+        }
+      }
+
+      .add-wolves-to-pack-btn{
+        margin: 15px
+      }
+    }
+
+    .google-maps{
+      width: 100%;
+      margin-bottom: 20px;
     }
   }
 }

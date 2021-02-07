@@ -1,0 +1,30 @@
+.select-wolves-container{
+  width: 100%;
+  max-height: 800px;
+  overflow-y: auto;
+
+  h1, .dialog-actions{
+    width: 50%;
+    display: inline-block;
+  }
+
+  table {
+    width: 100%;
+
+    td {
+      width: available;
+    }
+
+    td.gender-cell {
+      text-transform: capitalize;
+    }
+  }
+
+  .dialog-actions{
+    button{
+      margin: 10px;
+      width: 120px;
+      height: 40px;
+    }
+  }
+}

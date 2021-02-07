@@ -18,11 +18,19 @@ export class WolfService implements IwolfService{
   }
 
   createWolf(wolf: Wolf): Observable<object> {
-    return undefined;
+    const requestUrl = `${this.apiUrl}/wolves`;
+    const data = {
+      name: wolf.name,
+      gender: wolf.gender,
+      birthday: this.formatDate(wolf.birthday, 'yyyy-MM-dd')
+    };
+
+    return this.http.post(requestUrl, data);
   }
 
   deleteWolf(id: number): Observable<object> {
-    return undefined;
+    const requestUrl = `${this.apiUrl}/wolves/${id}`;
+    return this.http.delete(requestUrl);
   }
 
   getWolfById(id: number): Observable<Wolf> {
@@ -65,14 +73,17 @@ export class WolfService implements IwolfService{
 
   updateWolf(wolf: Wolf): Observable<object> {
     const requestUrl = `${this.apiUrl}/wolves/${wolf.id}`;
-    const formattedBirthday = new DatePipe('en-US').transform(wolf.birthday, 'yyyy-MM-dd');
+    const formattedBirthday = this.formatDate(wolf.birthday, 'yyyy-MM-dd');
     const data = {
       name: wolf.name,
       gender: wolf.gender,
       birthday: formattedBirthday
     };
-    console.log(data);
 
     return this.http.put(requestUrl, data);
+  }
+
+  private formatDate(date: Date, format: string): string{
+    return new DatePipe('en-US').transform(date, format);
   }
 }

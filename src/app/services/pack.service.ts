@@ -1,14 +1,14 @@
 import {IpackService} from './abstraction/ipack.service';
 import {Observable} from 'rxjs';
 import {Pack} from '../models/pack';
-import {Wolf} from '../models/wolf';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
+import {Wolf} from '../models/wolf';
 
 @Injectable()
-export class PackService implements IpackService{
+export class PackService implements IpackService {
   private http: HttpClient;
   private readonly apiUrl: string;
 
@@ -18,35 +18,74 @@ export class PackService implements IpackService{
   }
 
   addWolfToPack(packId: number, wolfId: number): Observable<object> {
-    return undefined;
+    const requestUrl = `${this.apiUrl}/packs/${packId}/wolf/${wolfId}`;
+    return this.http.post(requestUrl, null);
   }
 
-  createPack(pack: Pack): Observable<object> {
-    return undefined;
+  createPack(pack: Pack): Observable<number> {
+    const requestUrl = `${this.apiUrl}/packs`;
+    const data = {
+      name: pack.name,
+      lng: pack.longitude.toString(),
+      lat: pack.latitude.toString()
+    };
+
+    return this.http.post(requestUrl, data).pipe(
+      map((response: any) => {
+        return response.id;
+      })
+    );
   }
 
   deletePack(id: number): Observable<object> {
-    return undefined;
+    const requestUrl = `${this.apiUrl}/packs/${id}`;
+    return this.http.delete(requestUrl);
   }
 
   getPackById(id: number): Observable<Pack> {
-    return undefined;
+    const requestUrl = `${this.apiUrl}/packs/${id}`;
+    return this.http.get(requestUrl).pipe(
+      map((response: any) => {
+        const wolves: Wolf[] = [];
+
+        for (const key of Object.keys(response.wolves)){
+          wolves.push({
+            id: response.wolves[key].id,
+            name: response.wolves[key].name,
+            gender: response.wolves[key].gender,
+            birthday: response.wolves[key].birthday,
+            createdAt: response.wolves[key].createdAt,
+            updatedAt: response.wolves[key].updatedAt
+          });
+        }
+
+        return {
+          id: response.id,
+          name: response.name,
+          latitude: response.lat,
+          longitude: response.lng,
+          createdAt: response.created_at,
+          updatedAt: response.updated_at,
+          wolves
+        };
+      }));
   }
 
   getPacks(): Observable<Pack[]> {
-    const requestUrl = this.apiUrl + '/packs';
+    const requestUrl = `${this.apiUrl}/packs`;
     return this.http.get(requestUrl).pipe(
       map((response: Response) => {
         const packsArray: Pack[] = [];
 
-        for (const key of Object.keys(response)){
+        for (const key of Object.keys(response)) {
           packsArray.push({
             id: response[key].id,
             name: response[key].name,
             latitude: response[key].lat,
             longitude: response[key].lng,
             createdAt: response[key].created_at,
-            updatedAt: response[key].updated_at
+            updatedAt: response[key].updated_at,
+            wolves: null
           });
         }
 
@@ -54,11 +93,19 @@ export class PackService implements IpackService{
       }));
   }
 
-  removeWolfFromPack(packId: number, wolfIf: number): Observable<object> {
-    return undefined;
+  removeWolfFromPack(packId: number, wolfId: number): Observable<object> {
+    const requestUrl = `${this.apiUrl}/packs/${packId}/wolf/${wolfId}`;
+    return this.http.delete(requestUrl);
   }
 
   updatePack(pack: Pack): Observable<object> {
-    return undefined;
+    const requestUrl = `${this.apiUrl}/packs/${pack.id}`;
+    const data = {
+      name: pack.name,
+      lng: pack.longitude,
+      lat: pack.latitude
+    };
+
+    return this.http.put(requestUrl, data);
   }
-  }
+}

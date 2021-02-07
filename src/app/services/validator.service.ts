@@ -3,8 +3,11 @@ import {AbstractControl} from '@angular/forms';
 export class ValidatorService {
   noWhitespaceValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const isWhitespace = (control.value || '').trim().length === 0;
-    const isValid = !isWhitespace;
-    return isValid ? null : {whitespace: true};
+    return !isWhitespace ? null : {whitespace: true};
+  }
+
+  onlyLettersValidator(control: AbstractControl): {[key: string]: boolean} | null {
+    return !/^[a-zA-Z]*$/g.test(control.value) ? {onlyLetters: true} : null;
   }
 
   dateIsInPastOrToday(control: AbstractControl): { [key: string]: boolean } | null {

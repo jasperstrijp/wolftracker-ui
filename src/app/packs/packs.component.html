@@ -1,1 +1,119 @@
-<p>packs works!</p>
+<div class="packs-container">
+  <div class="all-packs">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Pack</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <div class="loadingIndicator" *ngIf="packsLoading">
+          <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+        </div>
+
+        <table name="packsTable" ngDefaultControl mat-table *ngIf="this.packs === null || this.packs.length > 0"
+               [dataSource]="this.packs">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td class="{{(this.selectedPack !== null && this.selectedPack.id === pack.id ? 'active' : '')}}" mat-cell *matCellDef="let pack">{{pack.name}}</td>
+          </ng-container>
+          <ng-container matColumnDef="updatedAt">
+            <th mat-header-cell *matHeaderCellDef>Last Update</th>
+            <td class="{{(this.selectedPack !== null && this.selectedPack.id === pack.id ? 'active' : '')}}" mat-cell *matCellDef="let pack">{{pack.updatedAt}}</td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td class="{{(this.selectedPack !== null && this.selectedPack.id === pack.id ? 'active' : '')}}" mat-cell *matCellDef="let pack"><button (click)="selectPack(pack.id)" mat-raised-button color="primary">></button></td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="PacksTableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: PacksTableColumns"></tr>
+        </table>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-fab color="accent" (click)="this.openCreatePackForm()">
+          <mat-icon class="mat-24">add</mat-icon></button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  <div class="selected-pack">
+    <mat-card class="update-pack" *ngIf="selectedPack !== null">
+      <mat-card-header>
+        <mat-card-title>Selected Pack</mat-card-title>
+        <button (click)="closeSelectedPack()" class="close-button" mat-raised-button color="warn">
+          <mat-icon class="mat-24">close</mat-icon></button>
+      </mat-card-header>
+      <mat-card-content>
+
+        <div class="pack-selected" *ngIf="this.selectedPack !== null">
+          <form [formGroup]="packForm">
+            <mat-form-field appearance="fill">
+              <mat-label>Name:</mat-label>
+              <input formControlName="name" matInput required="required">
+              <mat-error *ngIf="packForm.controls.name.hasError('required')">
+                Name is <strong>Required</strong>
+              </mat-error>
+              <mat-error *ngIf="packForm.controls.name.hasError('whitespace')">
+                Name cannot be whitespace
+              </mat-error>
+              <mat-error *ngIf="packForm.controls.name.hasError('onlyLetters')">
+                Name can only exist from letters
+              </mat-error>
+            </mat-form-field>
+            <div class="wolves-table" *ngIf="!this.createPackFlag">
+              <div class="no-wolves" *ngIf="this.selectedPack.wolves === null || this.selectedPack.wolves === undefined || this.selectedPack.wolves.length === 0">
+                <div align="middle"><h3><i>There are currently no wolves in this pack, please add wolves by clicking the button.</i></h3></div>
+              </div>
+              <table name="selectedPackWolvesTable" ngDefaultControl mat-table [dataSource]="this.selectedPack.wolves"
+                     *ngIf="this.selectedPack.wolves !== null && this.selectedPack.wolves.length > 0">
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Name</th>
+                  <td mat-cell *matCellDef="let wolf">{{wolf.name}}</td>
+                </ng-container>
+                <ng-container matColumnDef="gender">
+                  <th mat-header-cell *matHeaderCellDef>Gender</th>
+                  <td class="gender-cell" mat-cell *matCellDef="let wolf">{{wolf.gender}}</td>
+                </ng-container>
+                <ng-container matColumnDef="birthday">
+                  <th mat-header-cell *matHeaderCellDef>Birthday</th>
+                  <td mat-cell *matCellDef="let wolf">{{wolf.birthday}}</td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let wolf">
+                    <button (click)="removeWolfFromPack(this.selectedPack.id, wolf.id)" mat-raised-button color="warn"><mat-icon class="mat-24">delete_forever</mat-icon></button>
+                    <button [routerLink]="'/wolves/' + wolf.id" mat-raised-button color="primary">></button>
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="selectedPackWolvesTableColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: selectedPackWolvesTableColumns"></tr>
+              </table>
+              <div class="actions" align="end">
+                <button (click)="openAddWolfToPack()" class="add-wolves-to-pack-btn" mat-fab color="accent"><mat-icon class="mat-24">add</mat-icon></button>
+              </div>
+            </div>
+            <div class="google-maps">
+              <google-map width="100%" height="350px" (mapClick)="mapClick($event)" [center]="{lat: this.selectedPack.latitude, lng: this.selectedPack.longitude}" [zoom]="8">
+                <map-marker [position]="{lat: this.selectedPack.latitude, lng: this.selectedPack.longitude}" title="Pack Location"></map-marker>
+              </google-map>
+            </div>
+
+            <!-- These fields only show when updating an existing pack -->
+            <mat-form-field appearance="fill" *ngIf="!this.createPackFlag">
+              <mat-label>Created At:</mat-label>
+              <input matInput disabled [value]="selectedPack.createdAt">
+            </mat-form-field>
+            <mat-form-field appearance="fill" *ngIf="!this.createPackFlag">
+              <mat-label>Updated At:</mat-label>
+              <input matInput disabled [value]="selectedPack.updatedAt">
+            </mat-form-field>
+          </form>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="middle">
+        <div class="buttons">
+          <button (click)="btnSaveClick()" class="button-save" mat-raised-button color="accent"><mat-icon class="mat-24">save</mat-icon> Save</button>
+          <button *ngIf="!this.createPackFlag" (click)="deletePack(this.selectedPack.id)" type="button" class="button-delete" mat-raised-button color="warn"><mat-icon class="mat-24">delete_forever</mat-icon> Delete</button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

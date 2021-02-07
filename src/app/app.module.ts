@@ -11,7 +11,11 @@ import { WolvesComponent } from './wolves/wolves.component';
 import { PacksComponent } from './packs/packs.component';
 import {MaterialModule} from './material.module';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {DateFormatPipe} from './pipe/date.pipe';
+import {GoogleMapsModule} from '@angular/google-maps';
+import {SelectWolfDialogComponent} from './dialog/select-wolf/select-wolf-dialog.component';
+import {CommonModule} from '@angular/common';
+import {ConfirmDialogComponent} from './dialog/confirm-dialog/confirm-dialog.component';
+import {ErrorStateMatcher, ShowOnDirtyErrorStateMatcher} from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -19,7 +23,8 @@ import {DateFormatPipe} from './pipe/date.pipe';
     DashboardComponent,
     WolvesComponent,
     PacksComponent,
-    DateFormatPipe
+    SelectWolfDialogComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -29,11 +34,17 @@ import {DateFormatPipe} from './pipe/date.pipe';
     HttpClientModule,
     MaterialModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    GoogleMapsModule,
+    CommonModule
+  ],
+  entryComponents: [
+    SelectWolfDialogComponent
   ],
   providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
-  bootstrap: [AppComponent]
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
+    {provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher}],
+  bootstrap: [AppComponent],
 })
 
 export class AppModule { }
